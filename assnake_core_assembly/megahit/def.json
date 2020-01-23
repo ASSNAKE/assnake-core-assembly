@@ -1,0 +1,32 @@
+{
+  "basic_assembly_options": {
+    "min_count": 2,
+    "k_list": [
+      21,
+      29,
+      39,
+      59,
+      79,
+      99,
+      119,
+      141
+    ]
+  },
+  "advanced_assembly_options": {
+    "no_mercy": false,
+    "bubble_level": 2,
+    "merge_level": {
+      "merge_level_l": 20,
+      "merge_level_s": 0.95
+    },
+    "prune_level": 2,
+    "prune_depth": 2,
+    "low_local_ratio": 0.2,
+    "max_tip_len": -1,
+    "no_local": false,
+    "kmin_1pass": false
+  },
+  "output_options": {
+    "min_contig_len": 200
+  }
+}
