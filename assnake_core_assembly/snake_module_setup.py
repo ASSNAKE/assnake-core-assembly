@@ -6,7 +6,7 @@ from assnake.utils import read_yaml
 this_dir = os.path.dirname(os.path.abspath(__file__))
 snake_module = SnakeModule(name = 'assnake-core-assembly', 
                            install_dir = this_dir,
-                           snakefiles = ['./megahit/megahit.py', ],
+                           snakefiles = ['./megahit/megahit.py', './metaspades/metaspades.py'],
                            invocation_commands = [megahit_invocation],
                            wc_configs = []
                             )
