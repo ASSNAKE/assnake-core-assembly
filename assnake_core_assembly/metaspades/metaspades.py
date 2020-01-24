@@ -50,4 +50,4 @@ rule metaspades:
     log: '{fs_prefix}/{df}/assembly/{sample_set}/metaspades__v3.14.0__{params}/log.txt'
     conda: 'metaspades_env.yaml'
     threads: 20
-    wrapper: "file://"+os.path.join(config['assnake_install_dir'], 'modules/metaspades/metaspades_wrapper.py')
+    wrapper: "file://"+os.path.join(config['assnake-core-assembly'], 'metaspades/metaspades_wrapper.py')
