@@ -1,4 +1,3 @@
-
 import shutil
 import os
 import pandas as pd
@@ -6,8 +5,6 @@ import assnake.api.dataset
 
 assnake_db = config['assnake_db']
 fna_db_dir = config['fna_db_dir']
-
-
 
 def megahit_input_from_table(wildcards):
     """
@@ -40,30 +37,27 @@ def megahit_input_from_table(wildcards):
     print('done with table')
     return {'F': rr1, 'R': rr2}
 
-print(config['assnake-core-assembly'])
-
 rule megahit_from_table:
     input:
         unpack(megahit_input_from_table),
         table      = '{fs_prefix}/{df}/assembly/{sample_set}/sample_set.tsv',
         params=os.path.join(config['assnake_db'], "params/megahit/{params}.json")
     output:
-        out_fa     = '{fs_prefix}/{df}/assembly/{sample_set}/mh__v1.2.9__{params}/final_contigs.fa',
-        params     = '{fs_prefix}/{df}/assembly/{sample_set}/mh__v1.2.9__{params}/params.json',
-        # dd ='/sdf/df'
+        out_fa     = '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{params}/final_contigs.fa',
+        params     = '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{params}/params.json',
     params:
-        out_folder = '{fs_prefix}/{df}/assembly/{sample_set}/mh__v1.2.9__{params}/assembly/'
-    threads: 12
+        out_folder = '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{params}/assembly/'
+    threads: 20
     wildcard_constraints:    
         df="[\w\d_-]+",
-        sample_set = "[\w\d_-]+"
-    log: '{fs_prefix}/{df}/assembly/{sample_set}/mh__v1.2.9__{params}/log.txt'
+        # sample_set = "[\w\d_-]+"
+    log: '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{params}/log.txt'
     conda: 'megahit_env_v1.2.9.yaml'
     wrapper: "file://"+os.path.join(config['assnake-core-assembly'], 'megahit/megahit_wrapper.py')
 
 def get_ref(wildcards):
     fs_prefix = api.dataset.Dataset(wildcards.df).fs_prefix
-    return '{fs_prefix}/{df}/assembly/{sample_set}/mh__v1.2.9__{params}/final_contigs.fa'.format(
+    return '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{params}/final_contigs.fa'.format(
             fs_prefix = fs_prefix, 
             df = wildcards.df,
             sample_set = wildcards.sample_set,
@@ -81,10 +75,8 @@ rule refine_assemb_results_cross:
         ll    = '{fs_prefix}/{df}/assembly/{sample_set}/{assembler}__{assembler_version}__{params}/final_contigs__{min_len}.log'
     wildcard_constraints:
         min_len="[\d_-]+"
-    run:
-        shell('echo -e "INFO: Filtering contigs < {wildcards.min_len}bp and simplifying names"')
-        shell("{config[anvio.bin]}anvi-script-reformat-fasta {input.ref} -o {output.fa} --prefix {wildcards.sample_set} --min-len {wildcards.min_len} --simplify-names --report {log.names} > {log.ll} 2>&1")
-        shell('echo -e "INFO: Done filtering contigs < {wildcards.min_len} and simplifying names!"')
+    conda: 'anvi_minimal_env.yaml'
+    shell: ("anvi-script-reformat-fasta {input.ref} -o {output.fa} --prefix {wildcards.sample_set} --min-len {wildcards.min_len} --simplify-names --report {log.names} > {log.ll} 2>&1")
         # shell('''echo -e "INFO: Creating fai and dict files for reference" \n
         #         {config[samtools.bin]} faidx {output.fa} \n
         #         {config[java.bin]} \
