@@ -1,6 +1,6 @@
 import click, glob, os
 import assnake.api.loaders
-import assnake.api.sample_set
+import assnake
 
 
 @click.command('megahit', short_help='Ultra-fast and memory-efficient NGS assembler')
