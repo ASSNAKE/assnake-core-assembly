@@ -1,7 +1,7 @@
 import shutil
 import os
 import pandas as pd
-import assnake.api.dataset 
+import assnake
 
 assnake_db = config['assnake_db']
 fna_db_dir = config['fna_db_dir']
@@ -56,7 +56,7 @@ rule megahit_from_table:
     wrapper: "file://"+os.path.join(config['assnake-core-assembly'], 'megahit/megahit_wrapper.py')
 
 def get_ref(wildcards):
-    fs_prefix = api.dataset.Dataset(wildcards.df).fs_prefix
+    fs_prefix = assnake.Dataset(wildcards.df).fs_prefix
     return '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{params}/final_contigs.fa'.format(
             fs_prefix = fs_prefix, 
             df = wildcards.df,
