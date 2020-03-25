@@ -1,34 +1,26 @@
 import click, glob, os
 import assnake.api.loaders
 import assnake
+from assnake.cli.cli_utils import sample_set_construction_options, add_options, generic_command_individual_samples,\
+    generate_result_list, generic_command_dict_of_sample_sets, prepare_sample_set_tsv_and_get_results
 
 
 @click.command('megahit', short_help='Ultra-fast and memory-efficient NGS assembler')
-@click.option('--df','-d', help='Name of the dataset')
-@click.option('--sample-sets','-s', help='Sample sets to assemble')
+@add_options(sample_set_construction_options)
+
+@click.option('--params', help='Parameters for Megahit', default='def')
 @click.option('--min-len','-l', help='Minimum length of contigs', default=1000)
+@click.option('--overwrite', is_flag=True, help='Overwrite existing sample_set.tsv files', default=True)
+
 @click.pass_obj
 
-def megahit_invocation(config, df):
-    res_list = []
-    df = assnake.api.loaders.load_df_from_db(df)
-    prepared_sets = glob.glob(os.path.join(df['fs_prefix'],df['df'],'assembly/*/*/sample_set.tsv'))
-    click.echo('We found ' + str(len(prepared_sets)) + ' prepared sets:')
-    for i, pset in enumerate(prepared_sets):
-        name = pset.split('/')[-2]
-        run_info = pset.split('/')[-3]
-        click.echo(click.style(str(i), bold = True) + ' ' + run_info + ' ' + name)
+def megahit_invocation(config, params, min_len,overwrite, **kwargs):
+    # load sample sets     
+    sample_sets = generic_command_dict_of_sample_sets(config,   **kwargs)
 
-    selected_sets = []
-    sel_sets_str = click.prompt('Please, enter sets you want to assemble, comma separated. You can also type all, to select all sets', type=str)
-    sel_sets_str = sel_sets_str.replace(' ', '')
-    if sel_sets_str != 'all':
-        selected_sets = [int(s) for s in sel_sets_str.split(',')] 
-    click.echo(click.style('Selected sets: ' + str(set(selected_sets)), fg='green'))
-    min_len = click.prompt('Please, enter minimum contig lenth', type=int)
+    sample_set_dir_wc = '{fs_prefix}/{df}/assembly/{sample_set}/'
+    result_wc = '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{params}/final_contigs__{min_len}.fa'
+    res_list = prepare_sample_set_tsv_and_get_results(sample_set_dir_wc, result_wc, df = kwargs['df'], sample_sets = sample_sets, min_len = min_len, params = params, overwrite = overwrite)
 
-    for ss in selected_sets:
-        res_list += [prepared_sets[ss].replace('sample_set.tsv', 'final_contigs__{min_len}.fa'.format(min_len=min_len))]
-
-# cli.add_command(mh)
+    config['requests'] += res_list
 
