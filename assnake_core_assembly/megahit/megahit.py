@@ -47,7 +47,7 @@ rule megahit_from_table:
         params     = '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{params}/params.json',
     params:
         out_folder = '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{params}/assembly/'
-    threads: 20
+    threads: 12
     wildcard_constraints:    
         df="[\w\d_-]+",
         # sample_set = "[\w\d_-]+"
@@ -68,8 +68,6 @@ rule refine_assemb_results_cross:
         ref = '{fs_prefix}/{df}/assembly/{sample_set}/{assembler}__{assembler_version}__{params}/final_contigs.fa'
     output: 
         fa =         '{fs_prefix}/{df}/assembly/{sample_set}/{assembler}__{assembler_version}__{params}/final_contigs__{min_len}.fa',
-        # fai =        '{fs_prefix}/{df}/assembly/{sample_set}/{assembler}__{assembler_version}__{params}/final_contigs__{min_len}.fa.fai',
-        # dictionary = '{fs_prefix}/{df}/assembly/{sample_set}/{assembler}__{assembler_version}__{params}/final_contigs__{min_len}.fa.dict'
     log: 
         names = '{fs_prefix}/{df}/assembly/{sample_set}/{assembler}__{assembler_version}__{params}/final_contigs__{min_len}.txt',
         ll    = '{fs_prefix}/{df}/assembly/{sample_set}/{assembler}__{assembler_version}__{params}/final_contigs__{min_len}.log'
@@ -77,10 +75,3 @@ rule refine_assemb_results_cross:
         min_len="[\d_-]+"
     conda: 'anvi_minimal_env.yaml'
     shell: ("anvi-script-reformat-fasta {input.ref} -o {output.fa} --prefix {wildcards.sample_set} --min-len {wildcards.min_len} --simplify-names --report {log.names} > {log.ll} 2>&1")
-        # shell('''echo -e "INFO: Creating fai and dict files for reference" \n
-        #         {config[samtools.bin]} faidx {output.fa} \n
-        #         {config[java.bin]} \
-        #             -jar {config[picard.jar]} CreateSequenceDictionary \
-        #                 REFERENCE={output.fa} \
-        #                 OUTPUT={output.dictionary} \n
-        #         echo -e "\nINFO: Done creating fai and dict files for reference!"''')

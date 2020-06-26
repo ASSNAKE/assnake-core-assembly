@@ -1,8 +1,8 @@
 import click, glob, os
 import assnake.api.loaders
 import assnake
-from assnake.cli.cli_utils import sample_set_construction_options, add_options, generic_command_individual_samples,\
-    generate_result_list, generic_command_dict_of_sample_sets, prepare_sample_set_tsv_and_get_results
+from assnake.core.sample_set import generic_command_dict_of_sample_sets, prepare_sample_set_tsv_and_get_results
+from assnake.cli.cli_utils import sample_set_construction_options, add_options
 
 
 @click.command('megahit', short_help='Ultra-fast and memory-efficient NGS assembler')
