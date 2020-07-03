@@ -1,0 +1,2 @@
+megahit_wc: '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{preset}/final_contigs__{min_len}.fa'
+megahit_sample_set_tsv_wc: '{fs_prefix}/{df}/assembly/{sample_set}/'

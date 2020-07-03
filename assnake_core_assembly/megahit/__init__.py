@@ -1,0 +1,1 @@
+from assnake_core_assembly.megahit.result import result

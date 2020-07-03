@@ -17,7 +17,7 @@ def megahit_input_from_table(wildcards):
     
     table = pd.read_csv(table_wc.format(fs_prefix = wildcards.fs_prefix,
                                         df = wildcards.df,
-                                        # params = wildcards.params,
+                                        # preset = wildcards.preset,
                                         sample_set = wildcards.sample_set),
                         sep = '\t')
     print(table)
@@ -27,12 +27,12 @@ def megahit_input_from_table(wildcards):
         rr1.append(r_wc_str.format(fs_prefix=wildcards.fs_prefix,
                                     df=s['df'], 
                                     preproc=s['preproc'],
-                                    sample=s['fs_name'],
+                                    sample=s['df_sample'],
                                     strand='R1'))
         rr2.append(r_wc_str.format(fs_prefix=wildcards.fs_prefix,
                                     df=s['df'], 
                                     preproc=s['preproc'],
-                                    sample=s['fs_name'],
+                                    sample=s['df_sample'],
                                     strand='R2'))
     print('done with table')
     return {'F': rr1, 'R': rr2}
@@ -41,36 +41,36 @@ rule megahit_from_table:
     input:
         unpack(megahit_input_from_table),
         table      = '{fs_prefix}/{df}/assembly/{sample_set}/sample_set.tsv',
-        params=os.path.join(config['assnake_db'], "params/megahit/{params}.json")
+        preset = os.path.join(config['assnake_db'], "presets/megahit/{preset}.json")
     output:
-        out_fa     = '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{params}/final_contigs.fa',
-        params     = '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{params}/params.json',
+        out_fa     = '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{preset}/final_contigs.fa',
+        preset     = '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{preset}/preset.json',
     params:
-        out_folder = '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{params}/assembly/'
+        out_folder = '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{preset}/assembly/'
     threads: 12
     wildcard_constraints:    
         df="[\w\d_-]+",
         # sample_set = "[\w\d_-]+"
-    log: '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{params}/log.txt'
+    log: '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{preset}/log.txt'
     conda: 'megahit_env_v1.2.9.yaml'
-    wrapper: "file://"+os.path.join(config['assnake-core-assembly'], 'megahit/megahit_wrapper.py')
+    wrapper: "file://"+os.path.join(config['assnake-core-assembly']['install_dir'], 'megahit/megahit_wrapper.py')
 
 def get_ref(wildcards):
     fs_prefix = assnake.Dataset(wildcards.df).fs_prefix
-    return '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{params}/final_contigs.fa'.format(
+    return '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{preset}/final_contigs.fa'.format(
             fs_prefix = fs_prefix, 
             df = wildcards.df,
             sample_set = wildcards.sample_set,
-            params = wildcards.params)
+            preset = wildcards.preset)
 
 rule refine_assemb_results_cross:
     input: 
-        ref = '{fs_prefix}/{df}/assembly/{sample_set}/{assembler}__{assembler_version}__{params}/final_contigs.fa'
+        ref = '{fs_prefix}/{df}/assembly/{sample_set}/{assembler}__{assembler_version}__{preset}/final_contigs.fa'
     output: 
-        fa =         '{fs_prefix}/{df}/assembly/{sample_set}/{assembler}__{assembler_version}__{params}/final_contigs__{min_len}.fa',
+        fa =         '{fs_prefix}/{df}/assembly/{sample_set}/{assembler}__{assembler_version}__{preset}/final_contigs__{min_len}.fa',
     log: 
-        names = '{fs_prefix}/{df}/assembly/{sample_set}/{assembler}__{assembler_version}__{params}/final_contigs__{min_len}.txt',
-        ll    = '{fs_prefix}/{df}/assembly/{sample_set}/{assembler}__{assembler_version}__{params}/final_contigs__{min_len}.log'
+        names = '{fs_prefix}/{df}/assembly/{sample_set}/{assembler}__{assembler_version}__{preset}/final_contigs__{min_len}.txt',
+        ll    = '{fs_prefix}/{df}/assembly/{sample_set}/{assembler}__{assembler_version}__{preset}/final_contigs__{min_len}.log'
     wildcard_constraints:
         min_len="[\d_-]+"
     conda: 'anvi_minimal_env.yaml'
