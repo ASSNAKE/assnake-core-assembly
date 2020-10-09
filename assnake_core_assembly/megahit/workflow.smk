@@ -47,7 +47,7 @@ rule megahit_from_table:
         preset     = '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{preset}/preset.json',
     params:
         out_folder = '{fs_prefix}/{df}/assembly/{sample_set}/megahit__v1.2.9__{preset}/assembly/'
-    threads: 12
+    threads: 8
     wildcard_constraints:    
         df="[\w\d_-]+",
         # sample_set = "[\w\d_-]+"
